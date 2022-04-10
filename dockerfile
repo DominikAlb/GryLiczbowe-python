@@ -7,18 +7,6 @@ RUN apt-get update && \
 
 RUN git clone https://github.com/DominikAlb/GryLiczbowe-python
 
-RUN pip3 install --upgrade pip3 && \
-    pip3 install aldryn_apphooks_config \
-    pip3 install aldryn_apphooks_config \
-    pip3 install aldryn_apphooks_config \
-    pip3 install aldryn_apphooks_config \
-    pip3 install aldryn_apphooks_config \
-from typing import List
-from datetime import datetime
-import statistics as stat
-import logging
-import os
-import random
-import matplotlib.pyplot as plt
+RUN pip3 install --upgrade pip3
 
 CMD [ "python3", "GryLiczbowe-python/main.py" ]
