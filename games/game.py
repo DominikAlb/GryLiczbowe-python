@@ -5,7 +5,7 @@ import statistics as stat
 import logging
 import os
 import random
-#import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 import boto3
 
@@ -27,7 +27,7 @@ class Game:
             self.m = args[1]
         elif len(args) == 4 and isinstance(args[0], int) and isinstance(args[1], int) and isinstance(args[2],
                                                                                                      int) and isinstance(
-                args[3], int):
+            args[3], int):
             self.n = args[0]
             self.min_val2 = args[1]
             self.max_val2 = args[2]
@@ -61,10 +61,10 @@ class Game:
 
     def draft(self):
         pass
-        #plt.ylabel("prawdopodobienstwo wygranej")
-        #plt.xlabel("liczba zakladow: " + self.name)
-        #plt.plot(self.games, self.gameResults)
-        #plt.show()
+        # plt.ylabel("prawdopodobienstwo wygranej")
+        # plt.xlabel("liczba zakladow: " + self.name)
+        # plt.plot(self.games, self.gameResults)
+        # plt.show()
 
     @staticmethod
     def draw(min_val: int, max_val: int, numbers: List[int], numSpins: int) -> bool:
@@ -82,7 +82,8 @@ class Game:
             folder = self.name
         try:
             bucket_name = "gryliczbowe"
-            file_name = folder + "/" + self.name + "-" + datetime.now().strftime("%H:%M:%S") + str(self.randomInput) + ".csv"
+            file_name = folder + "/" + self.name + "-" + datetime.now().strftime("%H:%M:%S") + str(
+                self.randomInput) + ".csv"
             s3_path = file_name
             s3 = boto3.resource("s3")
             s3.Bucket(bucket_name).put_object(Key=s3_path, Body=text)
@@ -96,7 +97,8 @@ class Game:
             folder = self.name
         try:
             directory = os.path.join("F:\\", "awss3\\", folder)
-            with open(directory + "\\" + self.name + "-" + datetime.now().strftime("%H-%M-%S") + str(self.randomInput) + ".csv",
+            with open(directory + "\\" + self.name + "-" + datetime.now().strftime("%H-%M-%S") + str(
+                    self.randomInput) + ".csv",
                       'a+', encoding='UTF8') as f:
                 f.write(text)
 
