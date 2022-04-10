@@ -5,6 +5,7 @@ import statistics as stat
 import logging
 import os
 import random
+# matplotlib.pyplot as plt
 
 import boto3
 
