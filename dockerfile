@@ -7,7 +7,7 @@ RUN apt-get update && \
 
 RUN git clone https://github.com/DominikAlb/GryLiczbowe-python
 
-RUN pip3 install --upgrade pip \
+RUN pip3 install --upgrade pip && \
     pip3 install matplotlib
 
 CMD [ "python3", "GryLiczbowe-python/main.py" ]
