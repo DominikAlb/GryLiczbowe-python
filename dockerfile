@@ -7,6 +7,6 @@ RUN apt-get update && \
 
 RUN git clone https://github.com/DominikAlb/GryLiczbowe-python
 
-RUN pip3 install --upgrade pip3
+RUN pip3 install --upgrade pip
 
 CMD [ "python3", "GryLiczbowe-python/main.py" ]
