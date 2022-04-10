@@ -60,10 +60,11 @@ class Game:
         return mean, var, sd
 
     def draft(self):
-        plt.ylabel("prawdopodobienstwo wygranej")
-        plt.xlabel("liczba zakladow: " + self.name)
-        plt.plot(self.games, self.gameResults)
-        plt.show()
+        pass
+        #plt.ylabel("prawdopodobienstwo wygranej")
+        #plt.xlabel("liczba zakladow: " + self.name)
+        #plt.plot(self.games, self.gameResults)
+        #plt.show()
 
     @staticmethod
     def draw(min_val: int, max_val: int, numbers: List[int], numSpins: int) -> bool:
