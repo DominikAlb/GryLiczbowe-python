@@ -8,6 +8,7 @@ RUN apt-get update && \
 RUN git clone https://github.com/DominikAlb/GryLiczbowe-python
 
 RUN pip3 install --upgrade pip && \
-    pip3 install matplotlib
+    pip3 install matplotlib && \
+    pip3 install boto3
 
 CMD [ "python3", "GryLiczbowe-python/main.py" ]
