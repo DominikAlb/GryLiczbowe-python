@@ -33,31 +33,31 @@ def play(length: int, game: Game, gameName: string):
     text: string = str(arr) + "\nsrednia: " + str(mean) + "\nwariancja: " + str(
         var) + "\nodchylenie standardowe: " + str(sd)
     print(text)
-    game.save(" ".join([str(i) for i in arr]), game.name)
+    game.saveLocally(" ".join([str(i) for i in arr]), game.name)
 
 
 if __name__ == '__main__':
     logging.info(datetime.now())
     length = 100
 
-    game: Game = EuroRoulette("EuroRoulette-MonteCarlo", True, 0, 36, True,  1)
-    play(length, game, "MonteCarlo")
+    #game: Game = EuroRoulette("EuroRoulette-MonteCarlo", True, 0, 36, True,  1)
+    #play(length, game, "MonteCarlo")
     #game.loadLocally('EuroRoulette-MonteCarlo')
 
-    game: Game = EuroRoulette("EuroRoulette-LasVegas", True, 0, 36, True, 1)
-    play(length, game, "LasVegas")
+    #game: Game = EuroRoulette("EuroRoulette-LasVegas", True, 0, 36, True, 1)
+    #play(length, game, "LasVegas")
     #game.save('EuroRoulette-LasVegas')
 
-    game = Lotto("Lotto-MonteCarlo", True, 1, 49, True, 6)
-    play(length, game, "MonteCarlo")
+    #game = Lotto("Lotto-MonteCarlo", True, 1, 49, True, 6)
+    #play(length, game, "MonteCarlo")
     #game.save('Lotto-MonteCarlo')
 
-    game = Lotto("Lotto-LasVegas", True, 1, 49, True, 6)
-    play(length, game, "LasVegas")
+    #game = Lotto("Lotto-LasVegas", True, 1, 49, True, 6)
+    #play(length, game, "LasVegas")
     #game.save('Lotto-LasVegas')
 
-    game = MultiMulti("MultiMulti-MonteCarlo", True, 1, 80, True, 20, 10)
-    play(length, game, "MonteCarlo")
+    #game = MultiMulti("MultiMulti-MonteCarlo", True, 1, 80, True, 20, 10)
+    #play(length, game, "MonteCarlo")
     #game.save('MultiMulti-MonteCarlo')
 
     game = MultiMulti("MultiMulti-LasVegas", True, 1, 80, True, 20, 10)
