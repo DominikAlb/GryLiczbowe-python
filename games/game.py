@@ -69,6 +69,7 @@ class Game:
     @staticmethod
     def draw(min_val: int, max_val: int, numbers: List[int], numSpins: int) -> bool:
         outcome = random.sample(range(min_val, max_val), numSpins)
+        #print("OUT: " + str(outcome) + " : " + str(numSpins))
         count: int = 0
         for x in outcome:
             if x in numbers:
@@ -82,7 +83,7 @@ class Game:
             folder = self.name
         try:
             bucket_name = "gryliczbowe"
-            file_name = folder + "/" + self.name + "-" + datetime.now().strftime("%H:%M:%S") + str(
+            file_name = folder + "/" + self.name + "-" + datetime.now().strftime("%H-%M-%S") + str(
                 self.randomInput) + ".csv"
             s3_path = file_name
             s3 = boto3.resource("s3")
@@ -101,9 +102,10 @@ class Game:
                     self.randomInput) + ".csv",
                       'a+', encoding='UTF8') as f:
                 f.write(text)
+                f.close()
 
         except Exception as e:
-            logging.exception(e)
+            print(e)
             return False
         return True
 
@@ -122,21 +124,19 @@ class Game:
                         results = [float(s) for s in gameResults.split(' ')]
                         self.gameResults = results
                         self.games = range(1, len(self.gameResults) + 1)
-                        self.draft()
+                        #self.draft()
                         f.close()
                     fixdata += results
                     del gameResults
                     del results
+                    self.draft()
             mean, var, sd = self.statistics(fixdata)
             text: string = "\nsrednia: " + str(mean) + "\nwariancja: " + str(
                 var) + "\nodchylenie standardowe: " + str(sd)
             print(text)
             del fixdata
         except Exception as e:
-            if self.debug:
-                logging.exception(e)
-            else:
-                print(e)
+            print(e)
             return False
         return True
 

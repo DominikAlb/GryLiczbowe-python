@@ -48,10 +48,14 @@ class EuroJackpot(Game):
                 if self.randomInput:
                     numbers1 = random.sample(range(self.min_val, self.max_val), self.n)
                     numbers2 = random.sample(range(self.min_val2, self.max_val2), self.m)
+                #print("nu1 " + str(numbers1) + " - " + str(self.n) + " - " + str(self.min_val) + " - " + str(self.max_val))
+                #print("nu2 " + str(numbers1) + " - " + str(self.n) + " - " + str(self.min_val) + " - " + str(
+                #    self.max_val))
                 count += 1
                 if super().draw(self.min_val, self.max_val, numbers1, len(numbers1)) and \
                         super().draw(self.min_val2, self.max_val2, numbers2, len(numbers2)):
                     break
+                print("BREAK!")
             self.games.append(i)
             self.gameResults.append(count + 1)
         super().draft()
