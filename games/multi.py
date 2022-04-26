@@ -18,7 +18,7 @@ class MultiMulti(Game):
                 wins = wins + 1
             self.games.append(i + 1)
             self.gameResults.append(wins / (i + 1))
-        super().draft()
+        super().draft(len(self.gameResults)-numSpins, len(self.gameResults))
         if self.debug:
             logging.info(
                 "Oczekiwany wynik wylosowania w " + self.name + ": " + str(numbers) + " , to: " + str(100 * wins / numSpins) + "%\n")
@@ -26,7 +26,7 @@ class MultiMulti(Game):
                 "liczba wygranych: " + str(wins) + "\n\n")
         return wins / numSpins
 
-    def lasVegas(self, numSpins: int) -> float:
+    def lasVegas(self, numSpins: int) -> []:
         count: int = 0
         numbers = []
         if not self.randomInput:
@@ -40,7 +40,7 @@ class MultiMulti(Game):
                     break
             self.games.append(i + 1)
             self.gameResults.append(count)
-        super().draft()
+        super().draft(len(self.gameResults)-numSpins, len(self.gameResults))
         if self.debug:
             logging.info(
                 "Oczekiwany sredni czas wygranej w " + self.name + ": " + str(numbers) + " , to: " + str(

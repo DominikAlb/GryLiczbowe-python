@@ -10,5 +10,5 @@ class PowerBall(EuroJackpot):
     def monteCarlo(self, numSpins: int) -> float:
         return super().monteCarlo(numSpins)
 
-    def lasVegas(self, numSpins: int) -> float:
+    def lasVegas(self, numSpins: int) -> []:
         return super().lasVegas(numSpins)

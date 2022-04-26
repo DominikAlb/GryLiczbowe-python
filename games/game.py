@@ -1,11 +1,12 @@
 import string
+import uuid
 from typing import List
 from datetime import datetime
 import statistics as stat
 import logging
 import os
 import random
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 import boto3
 
@@ -36,7 +37,7 @@ class Game:
     def monteCarlo(self, numSpins: int) -> float:
         pass
 
-    def lasVegas(self, numSpins: int) -> float:
+    def lasVegas(self, numSpins: int) -> []:
         pass
 
     def statistics(self, arr: List[float]) -> (float, float, float):
@@ -59,12 +60,14 @@ class Game:
 
         return mean, var, sd
 
-    def draft(self):
-        pass
-        # plt.ylabel("prawdopodobienstwo wygranej")
-        # plt.xlabel("liczba zakladow: " + self.name)
-        # plt.plot(self.games, self.gameResults)
-        # plt.show()
+    def draft(self, min, max):
+        #pass
+        plt.ylabel("prawdopodobienstwo wygranej")
+        plt.xlabel("liczba zakladow: " + self.name)
+        plt.plot(self.games[min:max], self.gameResults[min:max])
+
+    def show(self):
+        plt.show()
 
     @staticmethod
     def draw(min_val: int, max_val: int, numbers: List[int], numSpins: int) -> bool:
@@ -124,12 +127,11 @@ class Game:
                         results = [float(s) for s in gameResults.split(' ')]
                         self.gameResults = results
                         self.games = range(1, len(self.gameResults) + 1)
-                        #self.draft()
+                        self.draft(0, len(self.gameResults))
                         f.close()
                     fixdata += results
                     del gameResults
                     del results
-                    self.draft()
             mean, var, sd = self.statistics(fixdata)
             text: string = "\nsrednia: " + str(mean) + "\nwariancja: " + str(
                 var) + "\nodchylenie standardowe: " + str(sd)
@@ -155,7 +157,9 @@ class Game:
                 arr += results
                 self.gameResults = results
                 self.games = range(1, len(self.gameResults) + 1)
-                self.draft()
+                self.draft(0, len(gameResults))
+                fixdata += results
+                del gameResults
                 del results
             mean, var, sd = self.statistics(fixdata)
             text: string = "\nsrednia: " + str(mean) + "\nwariancja: " + str(

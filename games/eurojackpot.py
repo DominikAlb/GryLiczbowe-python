@@ -26,7 +26,7 @@ class EuroJackpot(Game):
                 wins = wins + 1
             self.games.append(i + 1)
             self.gameResults.append(wins / (i + 1))
-        super().draft()
+        super().draft(len(self.gameResults)-numSpins, len(self.gameResults))
         if self.debug:
             logging.info(
                 "Oczekiwany wynik wylosowania w " + self.name + ": " + str(numbers1) + " - " + str(numbers2) + " , to: " + str(
@@ -36,14 +36,14 @@ class EuroJackpot(Game):
 
         return wins/numSpins
 
-    def lasVegas(self, numSpins: int) -> float:
+    def lasVegas(self, numSpins: int) -> []:
         numbers1 = []
         numbers2 = []
         if not self.randomInput:
             numbers1 = random.sample(range(self.min_val, self.max_val), self.n)
             numbers2 = random.sample(range(self.min_val2, self.max_val2), self.m)
+        count: int = 0
         for i in range(0, numSpins):
-            count: int = 0
             while True:
                 if self.randomInput:
                     numbers1 = random.sample(range(self.min_val, self.max_val), self.n)
@@ -55,13 +55,13 @@ class EuroJackpot(Game):
                 if super().draw(self.min_val, self.max_val, numbers1, len(numbers1)) and \
                         super().draw(self.min_val2, self.max_val2, numbers2, len(numbers2)):
                     break
-                print("BREAK!")
+            print("BREAK!")
             self.games.append(i)
             self.gameResults.append(count + 1)
-        super().draft()
+        super().draft(len(self.gameResults)-numSpins, len(self.gameResults))
         if self.debug:
             logging.info(
                 "Oczekiwany sredni czas wygranej w " + self.name + ": " + str(numbers1) + ", " + str(numbers2) +
                 " , to: " + str(stat.mean(self.gameResults)) + "%\n")
 
-        return stat.mean(self.gameResults)
+        return self.gameResults
