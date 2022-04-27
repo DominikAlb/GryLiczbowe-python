@@ -81,16 +81,21 @@ class Game:
             return True
         return False
 
-    def save(self, text: string, folder: string) -> bool:
+    def save(self, text: string, folder: string, isTemp: bool) -> bool:
+
+        tempFolder = self.isTemporaryData(isTemp)
         if folder == '':
             folder = self.name
         try:
             bucket_name = "gryliczbowe"
-            file_name = folder + "/" + self.name + "-" + datetime.now().strftime("%H-%M-%S") + str(
-                self.randomInput) + ".csv"
-            s3_path = file_name
+            file_name = ""
+            if not isTemp:
+                file_name = tempFolder + folder + "/" + self.name + "-" + datetime.now().strftime("%H-%M-%S") + str(
+                    self.randomInput) + ".csv"
+            else:
+                file_name = "temp/" + self.name + "/temp.csv"
             s3 = boto3.resource("s3")
-            s3.Bucket(bucket_name).put_object(Key=s3_path, Body=text)
+            s3.Bucket(bucket_name).put_object(Key=file_name, Body=text)
         except Exception as e:
             logging.exception(e)
             return False
@@ -142,12 +147,13 @@ class Game:
             return False
         return True
 
-    def load(self) -> bool:
+    def load(self, isTemp: bool) -> bool:
 
+        tempFolder = self.isTemporaryData(isTemp)
         bucket_name = "gryliczbowe"
         try:
             s3 = boto3.client("s3")
-            response = s3.list_objects_v2(Bucket=bucket_name, Prefix=self.name + "/", MaxKeys=100)
+            response = s3.list_objects_v2(Bucket=bucket_name, Prefix=tempFolder + self.name + "/", MaxKeys=100)
             fixdata: list = []
             arr = []
             for o in response.get('Contents'):
@@ -170,3 +176,30 @@ class Game:
             logging.exception(e)
             return False
         return True
+
+    def isTemporaryData(self, isTemp: bool) -> string:
+        tempFolder = ""
+        if isTemp:
+            tempFolder = "temp/"
+        return tempFolder
+
+    def loadTempDataIfExists(self) -> (list, list):
+        bucket_name = "gryliczbowe"
+        try:
+            s3 = boto3.client("s3")
+            response = s3.list_objects_v2(Bucket=bucket_name, Prefix="temp/" + self.name + "/", MaxKeys=100)
+            for o in response.get('Contents'):
+                data = s3.get_object(Bucket=bucket_name, Key=o.get('Key'))
+                gameResults = data['Body'].read().decode("utf-8").split('\n')[0]
+                results = [int(s) for s in gameResults.split(' ')]
+                numberOfPreviousGames: [] = list(range(1, results[0]+1))
+                previousGames: [] = results[1:len(results)]
+                self.gameResults += previousGames
+                self.games += numberOfPreviousGames
+                del gameResults
+                del results
+                s3.Object(bucket_name, "temp/" + self.name + "/temp.csv").delete()
+        except Exception as e:
+            logging.info(e)
+            return [], []
+        return self.gameResults, self.games

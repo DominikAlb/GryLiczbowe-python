@@ -2,6 +2,7 @@ import random
 import string
 import logging
 import statistics as stat
+import time
 
 from games.game import Game
 
@@ -39,12 +40,17 @@ class EuroJackpot(Game):
     def lasVegas(self, numSpins: int) -> []:
         numbers1 = []
         numbers2 = []
+        start_time = time.time()
+        self.gameResults, self.games = self.loadTempDataIfExists()
         if not self.randomInput:
             numbers1 = random.sample(range(self.min_val, self.max_val), self.n)
             numbers2 = random.sample(range(self.min_val2, self.max_val2), self.m)
         count: int = 0
         for i in range(0, numSpins):
             while True:
+                if (time.time() - start_time) > 870:
+                    self.save(str(i) + " " + str(" ".join([str(g) for g in self.gameResults])), self.name, True)
+                    exit(0)
                 if self.randomInput:
                     numbers1 = random.sample(range(self.min_val, self.max_val), self.n)
                     numbers2 = random.sample(range(self.min_val2, self.max_val2), self.m)

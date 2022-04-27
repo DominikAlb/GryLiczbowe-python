@@ -34,12 +34,12 @@ def play(length: int, game: Game, gameName: string):
     text: string = str(arr) + "\nsrednia: " + str(mean) + "\nwariancja: " + str(
         var) + "\nodchylenie standardowe: " + str(sd)
     print(text)
-    game.save(" ".join([str(i) for i in arr]), game.name)
+    game.save(" ".join([str(i) for i in arr]), game.name, False)
 
 
 if __name__ == '__main__':
     logging.info(datetime.now())
-    length = 100
+    length = 1000
 
     game: Game = EuroRoulette("EuroRoulette-MonteCarlo", True, 0, 36, True,  1)
     play(length, game, "MonteCarlo")
