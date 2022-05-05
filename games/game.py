@@ -6,7 +6,7 @@ import statistics as stat
 import logging
 import os
 import random
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 import boto3
 
@@ -61,18 +61,19 @@ class Game:
         return mean, var, sd
 
     def draft(self, min, max):
-        #pass
-        plt.ylabel("prawdopodobienstwo wygranej")
-        plt.xlabel("liczba zakladow: " + self.name)
-        plt.plot(self.games[min:max], self.gameResults[min:max])
+        pass
+        # plt.ylabel("prawdopodobienstwo wygranej")
+        # plt.xlabel("liczba zakladow: " + self.name)
+        # plt.plot(self.games[min:max], self.gameResults[min:max])
 
     def show(self):
-        plt.show()
+        pass
+        # plt.show()
 
     @staticmethod
     def draw(min_val: int, max_val: int, numbers: List[int], numSpins: int) -> bool:
         outcome = random.sample(range(min_val, max_val), numSpins)
-        #print("OUT: " + str(outcome) + " : " + str(numSpins))
+        # print("OUT: " + str(outcome) + " : " + str(numSpins))
         count: int = 0
         for x in outcome:
             if x in numbers:
@@ -183,23 +184,48 @@ class Game:
             tempFolder = "temp/"
         return tempFolder
 
-    def loadTempDataIfExists(self) -> (list, list):
+    def loadTempDataIfExists(self) -> (list, list, int):
         bucket_name = "gryliczbowe"
+        count = 0
         try:
             s3 = boto3.client("s3")
             response = s3.list_objects_v2(Bucket=bucket_name, Prefix="temp/" + self.name + "/", MaxKeys=100)
             for o in response.get('Contents'):
                 data = s3.get_object(Bucket=bucket_name, Key=o.get('Key'))
                 gameResults = data['Body'].read().decode("utf-8").split('\n')[0]
-                results = [int(s) for s in gameResults.split(' ')]
-                numberOfPreviousGames: [] = list(range(1, results[0]+1))
-                previousGames: [] = results[1:len(results)]
+                results = []
+                try:
+                    print('a')
+                    print(gameResults.split(' '))
+
+                    results = [int(s) for s in gameResults.split(' ')]
+                except Exception as e:
+                    print(e)
+                    print('b')
+                    results = [int(gameResults)]
+                previousGames = numberOfPreviousGames = []
+                if len(results) == 1:
+                    count = results[0]
+                else:
+                    previousGames: [] = results[1:len(results)]
+                    numberOfPreviousGames: [] = list(range(1, len(previousGames)))
+                    count = results[0]
+                    # if len(numberOfPreviousGames) == 0:
+                    #    numberOfPreviousGames.append(0)
                 self.gameResults += previousGames
                 self.games += numberOfPreviousGames
+                print("LEEE: ", self.gameResults, self.games, count, results)
                 del gameResults
                 del results
-                s3.Object(bucket_name, "temp/" + self.name + "/temp.csv").delete()
+            # s3.Object(bucket_name, "temp/" + self.name + "/temp.csv").delete()
         except Exception as e:
-            logging.info(e)
-            return [], []
-        return self.gameResults, self.games
+            print(e)
+            print('c')
+            print(self.gameResults, self.games, count)
+            return [], [], 0
+        print("wooo: ", self.gameResults, self.games, count)
+        return self.gameResults, self.games, count
+
+    def deleteTempFile(self):
+        s3 = boto3.resource('s3')
+        s3.Object('gryliczbowe', "temp/" + self.name + "/temp.csv").delete()
