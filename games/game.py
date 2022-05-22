@@ -66,8 +66,8 @@ class Game:
         plt.ylabel("prawdopodobienstwo wygranej")
         plt.xlabel("liczba zakladow: " + self.name)
         plt.plot(self.games[min:max], self.gameResults[min:max])
-        if "LasVegas" in self.name:
-            self.timeToWin()
+        #if "LasVegas" in self.name:
+        #    self.timeToWin()
 
     def show(self):
         #pass
@@ -160,6 +160,7 @@ class Game:
 
         tempFolder = self.isTemporaryData(isTemp)
         bucket_name = "gryliczbowe"
+        _timeToWin = []
         try:
             s3 = boto3.client("s3")
             response = s3.list_objects_v2(Bucket=bucket_name, Prefix=tempFolder + self.name + "/", MaxKeys=100)
@@ -177,12 +178,20 @@ class Game:
                 self.gameResults = results
                 self.games = range(0, len(results))
                 self.draft(0, len(results))
+                _timeToWin.append(self.timeToWin())
+
                 fixdata += results
                 del gameResults
                 del results
             mean, var, sd = self.statistics(fixdata)
-            text: string = "\nsrednia: " + str(mean) + "\nwariancja: " + str(
+            _time = stat.mean(_timeToWin)
+            print("sredni czas oczekiwania: ", _time, " dni. Jest to ", _time / 365, " lat.")
+            text: string = "srednia: " + str(mean) + "\nwariancja: " + str(
                 var) + "\nodchylenie standardowe: " + str(sd)
+
+
+            print(text)
+
             del fixdata
         except Exception as e:
             logging.exception(e)
@@ -234,12 +243,12 @@ class Game:
         s3 = boto3.resource('s3')
         s3.Object('gryliczbowe', "temp/" + self.name + "/temp.csv").delete()
 
-    def timeToWin(self) -> timedelta | None:
+    def timeToWin(self):
 
         drawPerWeek: int = 0
         drawPerDay: int = 0
         drawPerMinute: int = 0
-        endDate: timedelta | None
+        endDate = None
 
         if "EuroRoulette" in self.name:
             drawPerMinute = 2
@@ -259,13 +268,20 @@ class Game:
         if drawPerMinute != 0:
             tempValue = self.gameResults[-1] * drawPerMinute
             endDate = timedelta(days=tempValue / 1440)
+            _time = endDate.seconds / 1440
+            return _time
         elif drawPerDay != 0 and drawPerWeek != 0:
-            tempValue = self.gameResults[-1] / (drawPerDay * drawPerWeek)
-            endDate = timedelta(weeks=tempValue)
+            avgDrawPerDay = ((drawPerDay * drawPerWeek) / 7)
+            if self.gameResults[-1] * 7 > timedelta.max.days:
+                tempValue = self.gameResults[1] * avgDrawPerDay
+            else:
+                tempValue = self.gameResults[-1] / (drawPerDay * drawPerWeek) * avgDrawPerDay
+            return tempValue
+
 
         #print("Czas do wygranej: ", endDate.year, " lat, ", endDate.month, " miesięcy, ", endDate.day, " dni, ", endDate.hour, " godzin, ", endDate.minute, " minut.")
         #print("Oczekiwany wynik okolo: ", datetime.now() + timedelta(days=endDate.year * 365 * endDate.month * 30 + endDate.day, hours=endDate.hour, minutes=endDate.minute))
-        print("Czas do wygranej: ", endDate.seconds / 1440, " dni, ")
-        print("Oczekiwany wynik okolo: ", datetime.now() + timedelta(days=endDate.seconds / 1440))
+        #print("Czas do wygranej: ", endDate.seconds / 1440, " dni, ")
+        #print("Oczekiwany wynik okolo: ", datetime.now() + timedelta(days=_time))
 
-        return endDate
+        return -1

@@ -31,7 +31,7 @@ class EuroRoulette(Game):
                 "liczba wygranych: " + str(wins) + "\n\n")
         return wins/numSpins
 
-    def lasVegas(self, numSpins: int) -> []:
+    def lasVegas(self, numSpins: int):
         count: int = 0
         numbers = []
         start_time = time.time()
@@ -56,4 +56,4 @@ class EuroRoulette(Game):
             logging.info(
                 "Oczekiwany sredni czas wygranej w " + self.name + ": " + str(numbers) + " , to: " + str(stat.mean(self.gameResults)) + "%\n")
         #self.deleteTempFile()
-        return self.gameResults
+        return self.gameResults, self.timeToWin()
