@@ -1,12 +1,13 @@
+import calendar
 import string
-import uuid
+import time
 from typing import List
-from datetime import datetime
+from datetime import datetime, timedelta
 import statistics as stat
 import logging
 import os
 import random
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 import boto3
 
@@ -14,7 +15,7 @@ import boto3
 class Game:
 
     def __init__(self, name: string, debug: bool, min_val: int, max_val: int, randomInput: bool, *args):
-        self.name = name
+        self.name: string = name
         self.debug = debug
         self.min_val = min_val
         self.max_val = max_val
@@ -48,7 +49,7 @@ class Game:
         print("Rezultat:\n")
         print("srednia, " + str(mean) + "\n")
         print("wariancja, " + str(var) + "\n")
-        print("odcylenie standardowe, " + str(sd) + "\n")
+        print("odchylenie standardowe, " + str(sd) + "\n")
         print("---------------------------------------------------------------\n")
 
         if self.debug:
@@ -61,14 +62,16 @@ class Game:
         return mean, var, sd
 
     def draft(self, min, max):
-        pass
-        # plt.ylabel("prawdopodobienstwo wygranej")
-        # plt.xlabel("liczba zakladow: " + self.name)
-        # plt.plot(self.games[min:max], self.gameResults[min:max])
+        #pass
+        plt.ylabel("prawdopodobienstwo wygranej")
+        plt.xlabel("liczba zakladow: " + self.name)
+        plt.plot(self.games[min:max], self.gameResults[min:max])
+        if "LasVegas" in self.name:
+            self.timeToWin()
 
     def show(self):
-        pass
-        # plt.show()
+        #pass
+        plt.show()
 
     @staticmethod
     def draw(min_val: int, max_val: int, numbers: List[int], numSpins: int) -> bool:
@@ -106,7 +109,7 @@ class Game:
         if folder == '':
             folder = self.name
         try:
-            directory = os.path.join("F:\\", "awss3\\", folder)
+            directory = os.path.join("D:\\", "awss3\\", folder)
             with open(directory + "\\" + self.name + "-" + datetime.now().strftime("%H-%M-%S") + str(
                     self.randomInput) + ".csv",
                       'a+', encoding='UTF8') as f:
@@ -122,7 +125,7 @@ class Game:
 
         try:
             fixdata = []
-            directory = os.path.join("F:\\", "awss3\\", folder)
+            directory = os.path.join("D:\\", "awss3\\", folder)
             for root, dirs, files in os.walk(directory):
                 for file in files:
                     gameResults: string = ""
@@ -130,7 +133,12 @@ class Game:
                     if file.endswith(".csv"):
                         f = open(os.path.join(directory + "\\" + file), 'r')
                         gameResults = f.read().split('\n')[0]
-                        results = [float(s) for s in gameResults.split(' ')]
+                        for s in gameResults.split(' '):
+                            try:
+                                results.append(float(s))
+                            except Exception as e:
+                                continue
+
                         self.gameResults = results
                         self.games = range(1, len(self.gameResults) + 1)
                         self.draft(0, len(self.gameResults))
@@ -141,7 +149,7 @@ class Game:
             mean, var, sd = self.statistics(fixdata)
             text: string = "\nsrednia: " + str(mean) + "\nwariancja: " + str(
                 var) + "\nodchylenie standardowe: " + str(sd)
-            print(text)
+            #print(text)
             del fixdata
         except Exception as e:
             print(e)
@@ -156,22 +164,25 @@ class Game:
             s3 = boto3.client("s3")
             response = s3.list_objects_v2(Bucket=bucket_name, Prefix=tempFolder + self.name + "/", MaxKeys=100)
             fixdata: list = []
-            arr = []
-            for o in response.get('Contents'):
+            context = [obj for obj in response.get('Contents') if obj['Key'].endswith(str(self.randomInput) + '.csv')]
+            for o in context:
                 data = s3.get_object(Bucket=bucket_name, Key=o.get('Key'))
                 gameResults = data['Body'].read().decode("utf-8").split('\n')[0]
-                results = [float(s) for s in gameResults.split(' ')]
-                arr += results
+                results = [0.0] + [float(s.replace('[', '').replace(',', '').replace(']', '')) for s in gameResults.split(' ')]
+                if len(results) > 4:
+                    continue
+                for i in range(len(results)-1):
+                    if results[i+1] < results[i]:
+                        results[i+1] += results[i]
                 self.gameResults = results
-                self.games = range(1, len(self.gameResults) + 1)
-                self.draft(0, len(gameResults))
+                self.games = range(0, len(results))
+                self.draft(0, len(results))
                 fixdata += results
                 del gameResults
                 del results
             mean, var, sd = self.statistics(fixdata)
             text: string = "\nsrednia: " + str(mean) + "\nwariancja: " + str(
                 var) + "\nodchylenie standardowe: " + str(sd)
-            self.save(text, 'statistics')
             del fixdata
         except Exception as e:
             logging.exception(e)
@@ -195,13 +206,9 @@ class Game:
                 gameResults = data['Body'].read().decode("utf-8").split('\n')[0]
                 results = []
                 try:
-                    print('a')
-                    print(gameResults.split(' '))
-
                     results = [int(s) for s in gameResults.split(' ')]
                 except Exception as e:
                     print(e)
-                    print('b')
                     results = [int(gameResults)]
                 previousGames = numberOfPreviousGames = []
                 if len(results) == 1:
@@ -214,18 +221,51 @@ class Game:
                     #    numberOfPreviousGames.append(0)
                 self.gameResults += previousGames
                 self.games += numberOfPreviousGames
-                print("LEEE: ", self.gameResults, self.games, count, results)
                 del gameResults
                 del results
             # s3.Object(bucket_name, "temp/" + self.name + "/temp.csv").delete()
         except Exception as e:
             print(e)
-            print('c')
-            print(self.gameResults, self.games, count)
+            #print(self.gameResults, self.games, count)
             return [], [], 0
-        print("wooo: ", self.gameResults, self.games, count)
         return self.gameResults, self.games, count
 
     def deleteTempFile(self):
         s3 = boto3.resource('s3')
         s3.Object('gryliczbowe', "temp/" + self.name + "/temp.csv").delete()
+
+    def timeToWin(self) -> timedelta | None:
+
+        drawPerWeek: int = 0
+        drawPerDay: int = 0
+        drawPerMinute: int = 0
+        endDate: timedelta | None
+
+        if "EuroRoulette" in self.name:
+            drawPerMinute = 2
+        elif "Lotto" in self.name:
+            drawPerDay = 1
+            drawPerWeek = 2
+        elif "MultiMulti" in self.name:
+            drawPerDay = 2
+            drawPerWeek = 7
+        elif "EuroJackpot" in self.name:
+            drawPerDay = 1
+            drawPerWeek = 2
+        elif "PowerBall" in self.name:
+            drawPerDay = 1
+            drawPerWeek = 2
+
+        if drawPerMinute != 0:
+            tempValue = self.gameResults[-1] * drawPerMinute
+            endDate = timedelta(days=tempValue / 1440)
+        elif drawPerDay != 0 and drawPerWeek != 0:
+            tempValue = self.gameResults[-1] / (drawPerDay * drawPerWeek)
+            endDate = timedelta(weeks=tempValue)
+
+        #print("Czas do wygranej: ", endDate.year, " lat, ", endDate.month, " miesięcy, ", endDate.day, " dni, ", endDate.hour, " godzin, ", endDate.minute, " minut.")
+        #print("Oczekiwany wynik okolo: ", datetime.now() + timedelta(days=endDate.year * 365 * endDate.month * 30 + endDate.day, hours=endDate.hour, minutes=endDate.minute))
+        print("Czas do wygranej: ", endDate.seconds / 1440, " dni, ")
+        print("Oczekiwany wynik okolo: ", datetime.now() + timedelta(days=endDate.seconds / 1440))
+
+        return endDate

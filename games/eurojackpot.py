@@ -44,7 +44,6 @@ class EuroJackpot(Game):
         numbers2 = []
         start_time = time.time()
         self.gameResults, self.games, count = self.loadTempDataIfExists()
-        print("EEE2: ", self.gameResults, self.games, count)
         if not self.randomInput:
             numbers1 = random.sample(range(self.min_val, self.max_val), self.n)
             numbers2 = random.sample(range(self.min_val2, self.max_val2), self.m)
@@ -56,15 +55,11 @@ class EuroJackpot(Game):
                         s = "0"
                     else:
                         s = str(" ".join([str(g) for g in self.gameResults]))
-                    print("EEE22: ", self.gameResults, self.games, count)
                     self.save(str(count) + " " + s, self.name, True)
                     exit(0)
                 if self.randomInput:
                     numbers1 = random.sample(range(self.min_val, self.max_val), self.n)
                     numbers2 = random.sample(range(self.min_val2, self.max_val2), self.m)
-                #print("nu1 " + str(numbers1) + " - " + str(self.n) + " - " + str(self.min_val) + " - " + str(self.max_val))
-                #print("nu2 " + str(numbers1) + " - " + str(self.n) + " - " + str(self.min_val) + " - " + str(
-                #    self.max_val))
                 count += 1
                 if super().draw(self.min_val, self.max_val, numbers1, len(numbers1)) and \
                         super().draw(self.min_val2, self.max_val2, numbers2, len(numbers2)):
@@ -78,6 +73,5 @@ class EuroJackpot(Game):
                 "Oczekiwany sredni czas wygranej w " + self.name + ": " + str(numbers1) + ", " + str(numbers2) +
                 " , to: " + str(stat.mean(self.gameResults)) + "%\n")
 
-        self.save(" ".join([str(i) for i in self.gameResults]), self.name, False)
         self.deleteTempFile()
         return self.gameResults

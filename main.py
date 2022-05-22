@@ -29,46 +29,47 @@ def play(length: int, game: Game, gameName: string):
         mean, var, sd = game.statistics(arr)
         text: string = str(arr) + "\nsrednia: " + str(mean) + "\nwariancja: " + str(
             var) + "\nodchylenie standardowe: " + str(sd)
-        print(text)
-        game.save(" ".join([str(i) for i in arr]), game.name, False)
+        #print(text)
+        #game.save(" ".join([str(i) for i in game.gameResults]), game.name, False)
     elif gameName == "LasVegas":
         print("Las Vegas")
         start_time = time.time()
-        arr = [game.lasVegas(3) for _ in range(0, 3)]
+        arr = [game.lasVegas(50) for _ in range(0, 100)]
         print("--- %s minutes ---" % ((time.time() - start_time)/60))
         game.show()
         for i in arr:
             mean, var, sd = game.statistics(i)
             text: string = str(i) + "\nsrednia: " + str(mean) + "\nwariancja: " + str(
                 var) + "\nodchylenie standardowe: " + str(sd)
-            print(text)
-            game.save(" ".join([str(j) for j in arr]), game.name, False)
+            #game.save(" ".join([str(j) for j in game.gameResults]), game.name, False)
 
 if __name__ == '__main__':
     logging.info(datetime.now())
     length = 1000
 
-    #game: Game = EuroRoulette("EuroRoulette-MonteCarlo", True, 0, 36, True,  1)
+    #game: Game = EuroRoulette("EuroRoulette-MonteCarlo", True, 0, 37, True,  1)
     #play(length, game, "MonteCarlo")
-    #game.load()
+    #game.load(False)
+    #game.loadLocally(game.name)
     #game.show()
 
-    #game: Game = EuroRoulette("EuroRoulette-LasVegas", True, 0, 36, True, 1)
-    #play(length, game, "LasVegas")
-    #game.load()
+    game: Game = EuroRoulette("EuroRoulette-LasVegas", True, 0, 36, True, 1)
+    play(length, game, "LasVegas")
+    print(game.games)
+    #game.load(False)
     #game.show()
 
-    #game = Lotto("Lotto-MonteCarlo", True, 1, 49, True, 6)
-    #\\play(length, game, "MonteCarlo")
-    #game.load()
+    #game = Lotto("Lotto-MonteCarlo", True, 1, 49, False, 6)
+    #play(length, game, "MonteCarlo")
+    #game.load(False)
     #game.show()
 
     #game = Lotto("Lotto-LasVegas", True, 1, 49, True, 6)
     #play(length, game, "LasVegas")
-    #game.load()
+    #game.load(False)
     #game.show()
 
-    #game = MultiMulti("MultiMulti-MonteCarlo", True, 1, 80, True, 20, 10)
+    #game = MultiMulti("MultiMulti-MonteCarlo", True, 1, 80, False, 20, 10)
     #play(length, game, "MonteCarlo")
     #game.load()
     #game.show()
@@ -78,7 +79,7 @@ if __name__ == '__main__':
     #game.load()
     #game.show()
 
-    #game = EuroJackpot("EuroJackpot-MonteCarlo", True, 1, 50, True, 5, 1, 10, 2)
+    #game = EuroJackpot("EuroJackpot-MonteCarlo", True, 1, 50, False, 5, 1, 10, 2)
     #play(length, game, "MonteCarlo")
     #game.load()
     #game.show()
@@ -88,14 +89,15 @@ if __name__ == '__main__':
     #game.load()
     #game.show()
 
-    #game = PowerBall("PowerBall-MonteCarlo", True, 1, 69, True, 5, 1, 26, 1)
+    #game = PowerBall("PowerBall-MonteCarlo", True, 1, 69, False, 5, 1, 26, 1)
     #play(length, game, "MonteCarlo")
     #game.load()
     #game.show()
 
-    game = PowerBall("PowerBall-LasVegas", True, 1, 69, True, 5, 1, 26, 1)
-    play(length, game, "LasVegas")
+    #game = PowerBall("PowerBall-LasVegas", True, 1, 69, True, 5, 1, 26, 1)
+    #play(length, game, "LasVegas")
     #game.load()
     #game.show()
+
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

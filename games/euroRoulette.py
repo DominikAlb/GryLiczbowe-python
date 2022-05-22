@@ -35,15 +35,14 @@ class EuroRoulette(Game):
         count: int = 0
         numbers = []
         start_time = time.time()
-        self.gameResults, self.games, count = self.loadTempDataIfExists()
-        print(self.gameResults, self.games, count)
+        #self.gameResults, self.games, count = self.loadTempDataIfExists()
+        self.gameResults, self.games, count = [], [], 0
         if not self.randomInput:
             numbers = random.sample(range(self.min_val, self.max_val), self.n)
         for i in range(len(self.games), numSpins - len(self.games)):
             while True:
                 if (time.time() - start_time) > 6000:
                     self.save(str(count) + " " + str(" ".join([str(g) for g in self.gameResults])), self.name, True)
-                    print(count)
                     exit(0)
                 if self.randomInput:
                     numbers = random.sample(range(self.min_val, self.max_val), self.n)
@@ -56,6 +55,5 @@ class EuroRoulette(Game):
         if self.debug:
             logging.info(
                 "Oczekiwany sredni czas wygranej w " + self.name + ": " + str(numbers) + " , to: " + str(stat.mean(self.gameResults)) + "%\n")
-        self.save(" ".join([str(i) for i in self.gameResults]), self.name, False)
-        self.deleteTempFile()
+        #self.deleteTempFile()
         return self.gameResults

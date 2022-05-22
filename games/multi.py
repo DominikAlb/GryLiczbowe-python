@@ -13,8 +13,12 @@ class MultiMulti(Game):
 
     def monteCarlo(self, numSpins: int) -> float:
         wins: int = 0
-        numbers = random.sample(range(self.min_val, self.max_val), self.n)
+        numbers = []
+        if not self.randomInput:
+            numbers = random.sample(range(self.min_val, self.max_val), self.n)
         for i in range(0, numSpins):
+            if self.randomInput:
+                numbers = random.sample(range(self.min_val, self.max_val), self.n)
             if super().draw(self.min_val, self.max_val, numbers, self.m):
                 wins = wins + 1
             self.games.append(i + 1)
@@ -52,6 +56,5 @@ class MultiMulti(Game):
                 "Oczekiwany sredni czas wygranej w " + self.name + ": " + str(numbers) + " , to: " + str(
                     stat.mean(self.gameResults)) + "%\n")
 
-        self.save(" ".join([str(i) for i in self.gameResults]), self.name, False)
         self.deleteTempFile()
         return self.gameResults
